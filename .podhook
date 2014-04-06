@@ -1,3 +1,2 @@
-export NODE_ENV=production
 bower install --allow-root
 npm install
