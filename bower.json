@@ -1,0 +1,8 @@
+{
+  "name": "mapagrafia",
+  "dependencies": {
+    "bootstrap-sass": "twbs/bootstrap-sass#~3.1.1",
+    "d3": "~3.4.4",
+    "topojson": "~1.6.5"
+  }
+}
