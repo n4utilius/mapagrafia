@@ -11,7 +11,7 @@ module.exports = (grunt) ->
       dev:
         options:
           sassDir: 'lib/assets/sass'
-          importPath: 'public/vendor/bootstrap-sass/vendor/assets/stylesheets'
+          importPath: ['public/vendor/bootstrap-sass/vendor/assets/stylesheets', 'public/vendor/lato/scss']
           imagesDir: 'public/images'
           cssDir: 'public/stylesheets'
           fontsDir: 'public/fonts'

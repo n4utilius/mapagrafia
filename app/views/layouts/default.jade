@@ -4,14 +4,34 @@ html
     meta(name="viewport", content="width=device-width, initial-scale=1")
     block stylesheet
       link(rel='stylesheet', href='/stylesheets/styles.css')
+      link(href='http://fonts.googleapis.com/css?family=Lato:300,400,900', rel='stylesheet', type='text/css')
 
   body
     nav.navbar.navbar-default(role="navigation")
       .container
         .navbar-header
-          a.navbar-brand Mapagrafia
+          button.navbar-toggle(type="button")
+          span.sr-only
+          span.icon-bar
+          span.icon-bar
+          span.icon-bar
+          a.navbar-brand(href="#") Mapagrafia
+
+        .navbar-collapse.collapse
+          ul.nav.navbar-nav.navbar-right
+            li
+              a(href="/upload") Iniciar
+
 
     .container(role="main")
       block content
 
     block javascript
+      style(type='text/css').
+        body {
+          background-image: url("/images/bg-white.jpg");
+        }
+
+        .navbar-brand {
+          font-weight: 300;
+        }
