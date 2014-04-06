@@ -52,9 +52,9 @@ append javascript
     var mx = !{JSON.stringify(mapRaw).replace(/<\//g, "<\\/")};
     var total = "#{total}"
 
-    var color = d3.scale.threshold()
-      .domain([1, 2, 5, 10])
-      .range(["#ffffcc", "#c2e699", "#78c679", "#31a354", "#006837"]);
+    var color = d3.scale.log()
+      .range(["hsl(62,100%,90%)", "hsl(228,30%,20%)"])
+      .interpolate(d3.interpolateHcl);
 
     var projection = d3.geo.conicConformal()
       .rotate([102, 0])
@@ -63,18 +63,20 @@ append javascript
       .scale(1400)
       .translate([width / 2, height / 2]);
 
+
     var path = d3.geo.path()
       .projection(projection);
 
-    var projection = d3.geo.mercator()
-        .scale(1200)
-        .center([-102.34034978813841, 24.012062015793]);
-
     var svg = d3.select("svg")
-        .attr("width", width)
-        .attr("height", height);
+      .attr("width", width)
+      .attr("height", height);
 
-    var g = svg.append("g");
+    var counties = topojson.feature(mx, mx.objects.states).features;
+    var densities = counties
+      .map(function(d) { return d.properties.density = d.properties.value * 100 / total})
+      .sort(function(a, b) { return a - b; });
+
+    color.domain([d3.quantile(densities, .01), d3.quantile(densities, .99)]);
 
     svg.append("g")
         .attr("class", "states")
@@ -83,8 +85,8 @@ append javascript
       .enter().append("path")
         .attr("d", path)
         .style("fill", function(d) {
-          console.log(d.properties.value * 100 / total)
-          return color(d.density = d.properties.value * 100 / total);
+          console.log(d.properties.density)
+          return color(d.properties.density);
         })
       .append("title")
         .text(function(d) { return d.properties.name; });

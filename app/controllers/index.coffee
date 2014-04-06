@@ -2,6 +2,7 @@ _ = require 'underscore'
 async = require 'async'
 spreadsheets = require "../lib/spreadsheets"
 mapRaw = require "../lib/mx"
+mapStates = require("../lib/states").mapStates
 
 
 module.exports = (app) ->
@@ -36,5 +37,15 @@ module.exports = (app) ->
         mapRaw: mapRaw
         total: total
 
+  app.get '/graphics', (req, res) ->
+    spreadsheets.get 'key', (err, values) ->
+      data = {name: 'Estados'}
+
+      data.children = _.map values, (k, v )  ->
+        k.name = mapStates[v]
+        k
+
+      res.render 'graphics',
+        data: data
 
   return
