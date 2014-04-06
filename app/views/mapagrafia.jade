@@ -1,0 +1,159 @@
+extends ./layouts/default
+
+block content
+  .row
+    .col-xs-8.col-xs-offset-2.mg
+      div.title
+        h1= mapagrafia.title
+
+      div.description
+        p= mapagrafia.description
+
+      div.mapTitle
+        h2= mapagrafia.mapData.title
+
+      div.mapView
+        svg
+
+          append javascript
+            script(type='text/javascript', src='/vendor/d3/d3.js')
+            script(type='text/javascript', src='/vendor/topojson/topojson.js')
+            script(type="text/javascript").
+              var width = 700,
+                height = 430;
+
+              var mx = !{JSON.stringify(mapRaw).replace(/<\//g, "<\\/")};
+              var total = "#{total}"
+
+              var color = d3.scale.log()
+                .range(["hsl(62,100%,90%)", "hsl(228,30%,20%)"])
+                .interpolate(d3.interpolateHcl);
+
+              var projection = d3.geo.conicConformal()
+                .rotate([102, 0])
+                .center([0, 24])
+                .parallels([17.5, 29.5])
+                .scale(1100)
+                .translate([width / 2, height / 2]);
+
+              var path = d3.geo.path()
+                .projection(projection);
+
+              var svg = d3.select("svg")
+                .attr("width", width)
+                .attr("height", height);
+
+              var counties = topojson.feature(mx, mx.objects.states).features;
+
+              var densities = counties
+                .map(function(d) { return d.properties.density = d.properties.value * 100 / total})
+                .sort(function(a, b) { return a - b; });
+
+              color.domain([d3.quantile(densities, .01), d3.quantile(densities, .99)]);
+
+              svg.append("g")
+                  .attr("class", "states")
+                .selectAll("path")
+                  .data(topojson.feature(mx, mx.objects.states).features)
+                .enter().append("path")
+                  .attr("d", path)
+                  .style("fill", function(d) {
+                    console.log(d.properties.density)
+                    return color(d.properties.density);
+                  })
+                .append("title")
+                  .text(function(d) { return d.properties.name; });
+
+              svg.append("path")
+                .datum(topojson.mesh(mx, mx.objects.states, function(a, b) { return a === b; }))
+                .attr("class", "state-border")
+                .attr("d", path);
+
+
+append stylesheet
+  style(type='text/css').
+    .mg {
+      padding: 5px 30px 40px 30px;
+      background-color: #339999;
+      border-radius: 2px;
+      border: 5px solid white;
+    }
+
+    .title {
+      text-align: center;
+      border-bottom: 2px solid white;
+    }
+
+    .title h1 {
+      font-size: 84px;
+      color: white;
+      padding-top: 20px;
+      padding-bottom: 20px;
+    }
+
+    .description {
+      text-align: center;
+      border-bottom: 2px solid white;
+    }
+
+    .description p {
+      font-size: 14px;
+      font-weight: 300;
+      color: white;
+      padding-top: 20px;
+      padding-bottom: 20px;
+    }
+
+    .mapTitle {
+      text-align: center;
+    }
+
+    .mapTitle h2 {
+      font-size: 34px;
+      color: white;
+    }
+
+    .mapView {
+      background-color: white;
+      height: 454px;
+      border: 2px solid #EEE;
+    }
+
+    .btn-danger {
+      margin-left: 5px;
+    }
+
+    .mapView p {
+      color: white;
+      float: right;
+    }
+
+    .map-border {
+      fill: none;
+      stroke: #fff;
+    }
+
+    .state-border {
+      fill: none;
+      stroke: #BBB;
+    }
+
+    .option-btn {
+      width: 100px;
+    }
+
+    .paleta {
+      background-color: white;
+      padding-left: 20px;
+      height: 200px;
+      text-align: center;
+    }
+
+    .form {
+      height: 120px;
+      background-color: white;
+      margin-top: 10px;
+      padding: 20px 30px 40px 30px;
+    }
+
+

@@ -14,8 +14,9 @@ block content
       a.btn.btn-default.option-btn Morado
   .row
     .col-xs-8.col-xs-offset-2.form
-      form(role="form")
-        input.form-control(type="text", placeholder="Titulo")
+      form(role="form", action="/map", method="POST")
+        input.form-control(type="text", placeholder="Titulo", name="mapTitle")
+        input(type="hidden", value="#{mapagrafia.id}", name="mapagrafiaId")
         br
         button.btn.btn-danger.pull-right Saltar
         button.btn.btn-success.pull-right(type="submit") Agregar
