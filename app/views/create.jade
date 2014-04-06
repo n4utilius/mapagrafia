@@ -1,0 +1,26 @@
+extends ./layouts/default
+
+block content
+  .row
+    .col-xs-8.col-xs-offset-2.form
+      h2 Fomulario
+      form(role="form")
+        input.form-control(type="text", placeholder="Titulo")
+        span.help-block Que el titulo sea sencillo
+        textarea.form-control(rows="6", placeholder="Descripcion de tus datos")
+        span.help-block Aqui puedes hablar acerca de la información con la que cuentas.
+        .row
+          .col-xs-6
+            input.form-control(type="file")
+          .col-xs-6
+            input.form-control(type="text", placeholder="Google Docs key")
+            span.help-block Solo si deseas usar Google Docs
+        button.btn.btn-success.pull-right(type="submit") Siguiente
+
+append stylesheet
+  style(type='text/css').
+    .form {
+      padding: 5px 30px 40px 30px;
+      background-color: white;
+      border-radius: 2px
+    }
