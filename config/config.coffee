@@ -9,5 +9,5 @@ module.exports =
 
   production:
     db: "mongodb://localhost/mapagrafia_prod"
-    port: 5000
+    port: 6000
     root: rootPath
