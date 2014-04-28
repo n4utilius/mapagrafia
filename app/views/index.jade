@@ -26,6 +26,14 @@ block content
 
   .footer
 
+  .follow
+      a.twitter-share-button(href="https://twitter.com/share", data-text="Si lo tuyo es contar historias a traves de mapas y quieres hacerlo facilmente, esta es tu opción", data-via="__arch3r", data-lang="es", data-hashtags="mapagrafia") Twittear
+      a.twitter-follow-button(href="https://twitter.com/__arch3r",data-show-count="false", data-lang="es") Seguir a @__arch3r 
+      
+      script.
+        !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');
+      script.
+        !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');
 
 
 append stylesheet
@@ -55,6 +63,20 @@ append stylesheet
       text-align:right;
       color:#fff
     }
+
+    
+    .follow {
+      position:absolute;
+      right: 70px;
+      top: 240px;
+      z-index:100;
+
+    }
+
+    #follow-button {
+      padding: 10px 10px 10px 10px !important;
+    }
+
 
     .options {
       margin: 30px 0 30px 0;
