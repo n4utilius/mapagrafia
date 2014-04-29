@@ -4,14 +4,14 @@ block content
   .row
     .col-xs-8.col-xs-offset-2.form
       h2 Fomulario
-      form(role="form", action="/create", method="POST")
+      form(role="form", action="/create", method="POST", enctype="multipart/form-data")
         input.form-control(type="text", placeholder="Titulo", name="title")
         span.help-block Que el titulo sea sencillo
         textarea.form-control(rows="6", placeholder="Descripcion de tus datos", name="description")
         span.help-block Aqui puedes hablar acerca de la información con la que cuentas.
         .row
           .col-xs-6
-            input.form-control(type="file")
+            input.form-control(type="file", name="file")
           .col-xs-6
             input.form-control(type="text", placeholder="Google Docs key", name="googleDocsKey")
             span.help-block Solo si deseas usar Google Docs

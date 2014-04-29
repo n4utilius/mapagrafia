@@ -4,6 +4,8 @@ mongoose = require 'mongoose'
 spreadsheets = require "../lib/spreadsheets"
 mapRaw = require "../lib/mx"
 mapStates = require("../lib/states").mapStates
+csv = require('csv')
+fs = require('fs')
 
 module.exports = (app) ->
   Mapagrafia = app.models.Mapagrafia
@@ -16,13 +18,35 @@ module.exports = (app) ->
     res.render 'create'
 
 
-
   app.post '/create', (req, res) ->
-    new Mapagrafia(req.body).save (err, mapagrafia) ->
-      if err
-        console.log err
-        return res.send(500)
-      res.redirect "/map/#{mapagrafia._id}"
+    file_url = req.files.file.path
+    data = []
+
+    csv()
+    .from.stream(fs.createReadStream(file_url))
+    .transform( (row) ->
+      row.unshift(row.pop())
+      return row
+    )
+    .on('record', (row,index) ->
+      data.push(row)
+
+      #console.log('#' + index + ' ' + JSON.stringify(row))
+    )
+    .on('end', (count) -> 
+      req.body.mapData = data
+
+      new Mapagrafia(req.body).save (err, mapagrafia) ->
+        if err
+          console.log err
+          return res.send(500)
+        res.redirect "/map/#{mapagrafia._id}"
+    )
+    .on('error', (error) ->  console.log(error.message) )
+
+
+    #console.log(req.body);
+    
 
 
   app.get '/map/:mapagrafiaId', (req, res) ->

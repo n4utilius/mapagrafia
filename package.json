@@ -31,6 +31,7 @@
     "express": "~3.5.1",
     "mongoose": "~3.8.8",
     "google-spreadsheet": "~0.2.8",
-    "superagent": "~0.17.0"
+    "superagent": "~0.17.0",
+    "csv": "0.3.7"
   }
 }
