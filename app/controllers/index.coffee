@@ -64,7 +64,7 @@ module.exports = (app) ->
       newGeometries = _.map geometries, (geo) ->
         #he aqui el cambio
         values = mapagrafia.mapData
-        geo.properties.value  = parseInt( values[geo.properties.state_code]?.Totales or 0 )
+        geo.properties.value  = parseInt( values[geo.properties.state_code]?.Value or 0 )
         total += geo.properties.value
         geo
 
@@ -85,7 +85,7 @@ module.exports = (app) ->
     ], (err, mapagrafia) ->
       newGeometries = _.map geometries, (geo) ->
         values = mapagrafia.mapData
-        geo.properties.value  = parseInt( values[geo.properties.state_code]?.Totales or 0 )
+        geo.properties.value  = parseInt( values[geo.properties.state_code]?.Value or 0 )
         total += geo.properties.value
         geo
       console.log mapagrafia
