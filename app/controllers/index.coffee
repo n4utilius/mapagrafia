@@ -1,7 +1,7 @@
 _ = require 'underscore'
 async = require 'async'
 mongoose = require 'mongoose'
-spreadsheets = require "../lib/spreadsheets"
+#spreadsheets = require "../lib/spreadsheets"
 mapRaw = require "../lib/mx"
 mapStates = require("../lib/states").mapStates
 csv = require('csv')
@@ -20,7 +20,9 @@ module.exports = (app) ->
 
   app.post '/create', (req, res) ->
     file_url = req.files.file.path
-    data = []
+    data = {}
+    heads = []
+    is_head = true;
 
     csv()
     .from.stream(fs.createReadStream(file_url))
@@ -29,9 +31,14 @@ module.exports = (app) ->
       return row
     )
     .on('record', (row,index) ->
-      data.push(row)
-
-      #console.log('#' + index + ' ' + JSON.stringify(row))
+      if(is_head)
+        heads = row
+        is_head = false
+      else
+        obj = {}
+        for i of row
+          obj[heads[i]] = row[i]
+        data[index] = obj
     )
     .on('end', (count) -> 
       req.body.mapData = data
@@ -45,10 +52,6 @@ module.exports = (app) ->
     .on('error', (error) ->  console.log(error.message) )
 
 
-    #console.log(req.body);
-    
-
-
   app.get '/map/:mapagrafiaId', (req, res) ->
     geometries = mapRaw.objects.states.geometries
     total = 0
@@ -56,17 +59,37 @@ module.exports = (app) ->
 
     async.waterfall [
       (done) ->
-        spreadsheets.get 'key', done
-      (_values, done) ->
-        values = _values
         Mapagrafia.findOne {_id: req.params.mapagrafiaId}, done
     ], (err, mapagrafia) ->
       newGeometries = _.map geometries, (geo) ->
-        geo.properties.value  = values[geo.properties.state_code]?.value or 0
+        #he aqui el cambio
+        values = mapagrafia.mapData
+        geo.properties.value  = parseInt( values[geo.properties.state_code]?.Totales or 0 )
         total += geo.properties.value
         geo
 
       res.render 'configMap',
+        mapRaw: mapRaw
+        total: total
+        mapagrafia: mapagrafia
+
+
+  app.get '/mg/:mapagrafiaId', (req, res) ->
+    geometries = mapRaw.objects.states.geometries
+    total = 0
+    values = null
+
+    async.waterfall [
+      (done) ->
+        Mapagrafia.findOne {_id: req.params.mapagrafiaId}, done
+    ], (err, mapagrafia) ->
+      newGeometries = _.map geometries, (geo) ->
+        values = mapagrafia.mapData
+        geo.properties.value  = parseInt( values[geo.properties.state_code]?.Totales or 0 )
+        total += geo.properties.value
+        geo
+      console.log mapagrafia
+      res.render 'mapagrafia',
         mapRaw: mapRaw
         total: total
         mapagrafia: mapagrafia
@@ -86,38 +109,12 @@ module.exports = (app) ->
 
         res.redirect "/mg/#{mapagrafia._id}"
 
-  app.get '/mg/:mapagrafiaId', (req, res) ->
-    geometries = mapRaw.objects.states.geometries
-    total = 0
-    values = null
-
-    async.waterfall [
-      (done) ->
-        spreadsheets.get 'key', done
-      (_values, done) ->
-        values = _values
-        Mapagrafia.findOne {_id: req.params.mapagrafiaId}, done
-    ], (err, mapagrafia) ->
-      newGeometries = _.map geometries, (geo) ->
-        geo.properties.value  = values[geo.properties.state_code]?.value or 0
-        total += geo.properties.value
-        geo
-      console.log mapagrafia
-      res.render 'mapagrafia',
-        mapRaw: mapRaw
-        total: total
-        mapagrafia: mapagrafia
-
-
-
-
   app.get '/spreadsheets/:key', (req, res) ->
     spreadsheets.get req.params.key, (err, data) ->
       if err
         console.log err
         return res.send err.message
       res.send data
-
 
   app.get '/map', (req, res) ->
     geometries = mapRaw.objects.states.geometries
