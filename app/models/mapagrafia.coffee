@@ -8,6 +8,7 @@ module.exports = ->
     description: {type: String, default: ''}
     googleDocsKey: {type: String, default: '1MuKCo_Foq4Cm7g41yp2UHXLxOqywuTMKz8MSYz8fPHI'}
     mapData: { type: Schema.Types.Mixed }
+    #mapData: [{ type: Schema.Types.Mixed }]
     fileData:
       file: { type: Schema.Types.Mixed }
 

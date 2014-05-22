@@ -4,8 +4,49 @@ mongoose = require 'mongoose'
 #spreadsheets = require "../lib/spreadsheets"
 mapRaw = require "../lib/mx"
 mapStates = require("../lib/states").mapStates
-csv = require('csv')
-fs = require('fs')
+GoogleSpreadsheet = require("google-spreadsheet");
+csv = require 'csv'
+fs = require 'fs'
+
+utils = {}
+
+utils.csv_to_json = (fileUrl) ->
+  data = []
+  heads = []
+  is_head = true;
+
+  csv()
+  .from.stream(fs.createReadStream(fileUrl), { delimiter: ',' })
+  .transform( (row) ->
+    row.unshift(row.pop())
+    return row
+  )
+  .on('record', (row,index) ->
+    if(is_head)
+      heads = row
+      is_head = false
+    else
+      obj = {}
+      for i of row
+        obj[heads[i]] = row[i]
+      obj.id = index
+      data.push(obj)
+  )
+  .on('end', (count) -> 
+    return data
+  )
+  .on('error', (error) ->  console.log(error.message) )
+
+utils.gsheet_to_json = (googleDocsKey) ->
+  sheet = new GoogleSpreadsheet(googleDocsKey)
+  data = []
+
+  sheet.getRows( 1, (err, row_data) ->
+    if !err
+      console.log 'pulled in ' + row_data +  ' rows '
+    else
+      console.log err
+  )
 
 module.exports = (app) ->
   Mapagrafia = app.models.Mapagrafia
@@ -19,41 +60,27 @@ module.exports = (app) ->
 
 
   app.post '/create', (req, res) ->
-    file_url = req.files.file.path
-    data = {}
-    heads = []
-    is_head = true;
+    if req.body.googleDocsKey
+      googleDocsKey = req.body.googleDocsKey
+      #console.log googleDocsKey
+      #req.body.mapData  = utils.gsheet_to_json googleDocsKey 
+      utils.gsheet_to_json googleDocsKey 
+    else
+      fileUrl = req.files.file.path
+      req.body.mapData  = utils.csv_to_json(fileUrl)
 
-    csv()
-    .from.stream(fs.createReadStream(file_url))
-    .transform( (row) ->
-      row.unshift(row.pop())
-      return row
-    )
-    .on('record', (row,index) ->
-      if(is_head)
-        heads = row
-        is_head = false
-      else
-        obj = {}
-        for i of row
-          obj[heads[i]] = row[i]
-        data[index] = obj
-    )
-    .on('end', (count) -> 
-      req.body.mapData = data
-
-      new Mapagrafia(req.body).save (err, mapagrafia) ->
-        if err
-          console.log err
-          return res.send(500)
-        res.redirect "/map/#{mapagrafia._id}"
-    )
-    .on('error', (error) ->  console.log(error.message) )
+    #console.log req.body.mapData
+    #new Mapagrafia(req.body).save (err, mapagrafia) ->
+    #  if err
+    #    console.log err
+    #    return res.send(500)
+    #  res.redirect "/map/#{mapagrafia._id}"
+    res.redirect "/create"
+    
 
 
   app.get '/map/:mapagrafiaId', (req, res) ->
-    geometries = mapRaw.objects.states.geometries
+    geometries = mapRaw.objects.states.geometries #mapa en geojson
     total = 0
     values = null
 
